@@ -4,51 +4,57 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-const columns = Math.floor(canvas.width / 15);
-const binaryRain = Array(columns).fill(0);
+const points = [];
+const maxPoints = 50;
+const maxDistance = 150;
 
-const graphPoints = Array.from({ length: 10 }, () => ({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    speedX: Math.random() * 2 - 1,
-    speedY: Math.random() * 2 - 1,
-}));
+// Generate random points
+for (let i = 0; i < maxPoints; i++) {
+    points.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5
+    });
+}
 
 function drawBackground() {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = "rgba(0, 255, 0, 0.8)";
-    ctx.font = "15px monospace";
+    // Draw connections
+    for (let i = 0; i < points.length; i++) {
+        for (let j = i + 1; j < points.length; j++) {
+            const dx = points[i].x - points[j].x;
+            const dy = points[i].y - points[j].y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
 
-    for (let i = 0; i < binaryRain.length; i++) {
-        let char = Math.random() > 0.5 ? "0" : "1";
-        ctx.fillText(char, i * 15, binaryRain[i]);
-
-        if (binaryRain[i] > canvas.height && Math.random() > 0.975) {
-            binaryRain[i] = 0;
-        } else {
-            binaryRain[i] += 15;
+            if (distance < maxDistance) {
+                ctx.strokeStyle = `rgba(255, 255, 255, ${1 - distance / maxDistance})`;
+                ctx.lineWidth = 0.5;
+                ctx.beginPath();
+                ctx.moveTo(points[i].x, points[i].y);
+                ctx.lineTo(points[j].x, points[j].y);
+                ctx.stroke();
+            }
         }
     }
 
-    ctx.strokeStyle = "rgba(255, 215, 0, 0.7)";
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    for (let i = 0; i < graphPoints.length; i++) {
-        graphPoints[i].x += graphPoints[i].speedX;
-        graphPoints[i].y += graphPoints[i].speedY;
+    // Draw points
+    points.forEach(point => {
+        ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+    });
 
-        if (graphPoints[i].x < 0 || graphPoints[i].x > canvas.width) {
-            graphPoints[i].speedX *= -1;
-        }
-        if (graphPoints[i].y < 0 || graphPoints[i].y > canvas.height) {
-            graphPoints[i].speedY *= -1;
-        }
+    // Move points
+    points.forEach(point => {
+        point.x += point.vx;
+        point.y += point.vy;
 
-        ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
-    }
-    ctx.stroke();
+        if (point.x < 0 || point.x > canvas.width) point.vx *= -1;
+        if (point.y < 0 || point.y > canvas.height) point.vy *= -1;
+    });
 }
 
 function animate() {
