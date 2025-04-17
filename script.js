@@ -19,7 +19,9 @@ for (let i = 0; i < maxPoints; i++) {
 }
 
 function drawBackground() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Fill the canvas with a background color
+    ctx.fillStyle = "black"; // Set the background color to black
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw connections
     for (let i = 0; i < points.length; i++) {
@@ -29,7 +31,7 @@ function drawBackground() {
             const distance = Math.sqrt(dx * dx + dy * dy);
 
             if (distance < maxDistance) {
-                ctx.strokeStyle = `rgba(255, 255, 255, ${1 - distance / maxDistance})`;
+                ctx.strokeStyle = `rgba(255, 255, 255, ${1 - distance / maxDistance})`; // White lines
                 ctx.lineWidth = 0.5;
                 ctx.beginPath();
                 ctx.moveTo(points[i].x, points[i].y);
@@ -41,7 +43,7 @@ function drawBackground() {
 
     // Draw points
     points.forEach(point => {
-        ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+        ctx.fillStyle = "rgba(255, 255, 255, 0.8)"; // White points
         ctx.beginPath();
         ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
         ctx.fill();
